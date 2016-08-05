@@ -7,7 +7,7 @@
 #include "core/oxygine.h"
 #include "Stage.h"
 #include "DebugActor.h"
-#include "board.h"
+#include "game.h"
 
 
 using namespace oxygine;
@@ -22,7 +22,7 @@ int mainloop()
     bool done = core::update();
 
     // It gets passed to our example game implementation
-    board_update();
+    game_update();
 
     // Update our stage
     // Update all actors. Actor::update will also be called for all its children
@@ -58,7 +58,7 @@ void run()
 #endif
 
 
-    board_preinit();
+    game_preinit();
     core::init(&desc);
 
 
@@ -71,7 +71,7 @@ void run()
     DebugActor::show();
 
     // Initializes our example game. See example.cpp
-    board_init();
+    game_init();
 
 #ifdef EMSCRIPTEN
     /*
@@ -109,7 +109,7 @@ void run()
     */
 
     // See example.cpp for the shutdown function implementation
-    board_destroy();
+    game_destroy();
 
 
     //renderer.cleanup();
