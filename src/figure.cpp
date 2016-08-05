@@ -16,7 +16,6 @@ Figure::Figure(char c) {
     int col = charToFigure[tolower(c)];
     int row = isupper(c) ? 1 : 0;
     mColor = isupper(c) ? WHITE : BLACK;
-
     setResAnim(gameResources.getResAnim("chess_pieces"), col, row);
 }
 

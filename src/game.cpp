@@ -16,7 +16,8 @@ public:
     MainActor()
     {
         board = new Board();
-        board->setPosition(0, 10);
+        board->setScale(game_scale);
+        board->setPosition(0, 10 * game_scale);
         addChild(board);
     }
 
