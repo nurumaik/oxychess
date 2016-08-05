@@ -25,6 +25,7 @@ std::string Board::init_board[8]  = {
 
 Board::Board() {
     mState = IDLE;
+    mTurn = Figure::WHITE;
     setResAnim(gameResources.getResAnim("chess_board"));
     addClickListener(CLOSURE(this, &Board::handleBoardClick));
     setTouchChildrenEnabled(false);
@@ -67,8 +68,9 @@ void Board::handleBoardClick(Event* e) {
 
     switch (mState) {
     case IDLE:
-        if (!clicked_fig)
+        if (!clicked_fig || clicked_fig->fcolor() != mTurn)
             break;
+
         mSeli = i;
         mSelj = j;
         mState = FIGURE_MOVING;
@@ -103,6 +105,7 @@ void Board::handleBoardClick(Event* e) {
                     removeChild(clicked_fig);
                 }
                 selected_fig->setPriority(j + 1);
+                mTurn = (mTurn == Figure::WHITE) ? Figure::BLACK : Figure::WHITE;
                 mState = IDLE; 
             });
         break;

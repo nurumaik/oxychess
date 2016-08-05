@@ -15,6 +15,7 @@ class Board: public oxygine::Sprite {
     };
 
     GameState mState;
+    Figure::FColor mTurn;
     spFigure mFigures[8][8];
     int mSeli; // Coordinates of currently selected figure
     int mSelj;
