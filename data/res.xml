@@ -2,6 +2,7 @@
 <resources>
 	<set path = "images" />
 	<atlas>
+		<!-- CC-BY-SA 3.0 http://opengameart.org/content/chess-pieces-1 -->
 		<image file="chess_pieces.png" cols="6" rows="2"/>
 		<image file="chess_board.png" />
 	</atlas>

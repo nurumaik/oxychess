@@ -38,26 +38,83 @@ public:
     const float boardx = 100;
     const float boardy = 100;
 
+    spSprite figures[8][8];
+
+    AffineTransform cellToBoard = AffineTransform::getIdentity()
+        .translated({ 2, 2 }) // Board margins
+        .scaled({ 32, 24 });  // Board cell sizes
+    AffineTransform boardToCell = cellToBoard.inverted(); 
+    AffineTransform cellToFigure = cellToBoard * AffineTransform::getIdentity()
+        .translated({ 0, -12 }); // Some shifting for figures
+
+    enum GameState {
+        IDLE,
+        FIGURE_SELECTED,
+        FIGURE_MOVING
+    };
+
+    GameState state;
+    int selx;
+    int sely;
+    spSprite board;
+
     MainActor()
     {
-        spSprite board = new Sprite();
+        board = new Sprite();
+        state = IDLE;
         board->setResAnim(gameResources.getResAnim("chess_board"));
         board->setPosition(boardx, boardy);
+        board->addClickListener(CLOSURE(this, &MainActor::handleBoardClick));
+        board->setTouchChildrenEnabled(false);
         addChild(board);
-
-        auto figuresTransform = AffineTransform::getIdentity()
-            .translated({ boardx + 2, boardy + 2 - 12 }) // Board margins and some y shift
-            .scaled({ 32, 24 });                         // Board piece sizes
 
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 char fig = init_board[j][i];
-                if (fig == '.')
+                if (fig == '.') {
+                    figures[i][j] = nullptr;
                     continue;
+                }
                 spSprite figure = createFigure(fig);
-                figure->setPosition(figuresTransform.transform({ static_cast<float>(i), static_cast<float>(j) }));
-                addChild(figure);
+                figure->setPosition(cellToFigure.transform({ static_cast<float>(i), static_cast<float>(j) }));
+                board->addChild(figure);
+                figures[i][j] = figure;
             }
+        }
+    }
+
+    void handleBoardClick(Event* e) {
+        //Getting board coordinates
+        auto pos = boardToCell.transform(dynamic_cast<TouchEvent*>(e)->position);
+        int i = floor(pos.x);
+        int j = floor(pos.y);
+        //log::messageln("clicked board at %f %f == %d %d", dynamic_cast<TouchEvent*>(e)->position.x, dynamic_cast<TouchEvent*>(e)->position.y, i, j);
+        if (i < 0 || i > 7 || j < 0 || j > 7) {
+            return; // Nothing to do here
+        }
+        switch (state) {
+        case FIGURE_MOVING:
+            break; // User should wait for move to finish
+        case IDLE:
+            if (!figures[i][j])
+                break;
+            selx = i;
+            sely = j;
+            state = FIGURE_SELECTED;
+            break;
+        case FIGURE_SELECTED:
+            if (i == selx && j == sely) {
+                state = IDLE;
+            }
+            if (figures[i][j]) {
+                board->removeChild(figures[i][j]);
+                figures[i][j] = nullptr;
+            }
+            figures[selx][sely]->setPosition(cellToFigure.transform({ static_cast<float>(i), static_cast<float>(j) }));
+            figures[i][j] = figures[selx][sely];
+            figures[selx][sely] = nullptr;
+            state = IDLE;
+            break;
         }
     }
 };
