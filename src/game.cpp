@@ -11,15 +11,12 @@ class MainActor: public Actor
 {
 public:
 
-    const float boardx = 100;
-    const float boardy = 100;
-
     spSprite board;
 
     MainActor()
     {
         board = new Board();
-        board->setPosition(boardx, boardy);
+        board->setPosition(0, 0);
         addChild(board);
     }
 
