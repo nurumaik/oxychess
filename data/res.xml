@@ -2,10 +2,8 @@
 <resources>
 	<set path = "images" />
 	<atlas>
-		<image file="anim.png" cols = "8" />
-		<image file="button.png"/>		
-		<image file="chess_pieces_white.png" cols="6" />
-		<image file="chess_pieces_black.png" cols="6" />
+		<image file="chess_pieces.png" cols="6" rows="2"/>
+		<image file="chess_board.png" />
 	</atlas>
 	
 	<set path = "fonts" />

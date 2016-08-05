@@ -7,7 +7,6 @@ using namespace oxygine;
 //It is important on mobile devices with limited memory and you would load/unload them
 Resources gameResources;
 
-
 class MainActor: public Actor
 {
 public:
@@ -21,7 +20,10 @@ public:
 
         //setup it:
         //set button.png image. Resource 'button' defined in 'res.xml'
-        button->setResAnim(gameResources.getResAnim("button"));
+        auto x = gameResources.getResAnim("chess_pieces_white");
+        //button->setResAnim(gameResources.getResAnim("button"));
+        button->setResAnim(x);
+        button->setAnimFrame(x->getFrame(3));
 
         //centered button at screen
         Vector2 pos = getStage()->getSize() / 2 - button->getSize() / 2;
@@ -49,7 +51,7 @@ public:
         //create TextField Actor
         spTextField text = new TextField();
         //attach it as child to button
-        text->attachTo(button);
+        button->addChild(text);
         //centered in button
         text->setPosition(button->getSize() / 2);
 
