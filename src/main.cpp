@@ -53,7 +53,7 @@ void run()
 #if OXYGINE_SDL || OXYGINE_EMSCRIPTEN
     // The initial window size can be set up here on SDL builds
     desc.w = 260;
-    desc.h = 208;
+    desc.h = 218;
     // Marmalade settings can be modified from the emulator's menu
 #endif
 
