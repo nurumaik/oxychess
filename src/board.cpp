@@ -24,74 +24,90 @@ std::string Board::init_board[8]  = {
 };
 
 Board::Board() {
-    state = IDLE;
+    mState = IDLE;
     setResAnim(gameResources.getResAnim("chess_board"));
     addClickListener(CLOSURE(this, &Board::handleBoardClick));
     setTouchChildrenEnabled(false);
-    selx = 0;
-    sely = 0;
+    mSeli = 0;
+    mSelj = 0;
 
+    // Placing figure on board
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             char fig = init_board[j][i];
             if (fig == '.') {
-                figures[i][j] = nullptr;
+                mFigures[i][j] = nullptr;
                 continue;
             }
-            spSprite figure = new Figure(fig);
+            spFigure figure = new Figure(fig);
             figure->setPosition(cellToFigure.transform({ static_cast<float>(i), static_cast<float>(j) }));
             figure->setPriority(j + 1);
             addChild(figure);
-            figures[i][j] = figure;
+            mFigures[i][j] = figure;
         }
     }
 }
 
 void Board::handleBoardClick(Event* e) {
-    //Getting board coordinates
+    // Getting board coordinates
     auto pos = boardToCell.transform(dynamic_cast<TouchEvent*>(e)->position);
+
+    // Board coordinates of click
     int i = floor(pos.x);
     int j = floor(pos.y);
+
+    if (i < 0 || i > 7 || j < 0 || j > 7) //Clicked on board margins
+        return;
+
+    // Expected figure screen coordinates of click (center of cell)
     pos = cellToFigure.transform({ static_cast<float>(i), static_cast<float>(j) });
-    //log::messageln("clicked board at %f %f == %d %d", dynamic_cast<TouchEvent*>(e)->position.x, dynamic_cast<TouchEvent*>(e)->position.y, i, j);
-    if (i < 0 || i > 7 || j < 0 || j > 7) {
-        return; // Nothing to do here
-    }
-    spSprite clicked_fig = figures[i][j];
-    spSprite selected_fig = figures[selx][sely];
-    switch (state) {
-    case FIGURE_MOVING:
-        break; // User should wait for move to finish
+
+    spFigure clicked_fig = mFigures[i][j];
+    spFigure selected_fig = mFigures[mSeli][mSelj];
+
+    switch (mState) {
     case IDLE:
         if (!clicked_fig)
             break;
-        selx = i;
-        sely = j;
-        state = FIGURE_MOVING;
+        mSeli = i;
+        mSelj = j;
+        mState = FIGURE_MOVING;
+        // Lifting figure a bit
         clicked_fig->addTween(Actor::TweenY(pos.y - 6), 100)
-                   ->addDoneCallback([this](Event*) {state = FIGURE_SELECTED;});
+                   ->addDoneCallback([this](Event*) {mState = FIGURE_SELECTED;});
         break;
+
     case FIGURE_SELECTED:
-        state = FIGURE_MOVING;
-        if (i == selx && j == sely) {
+        mState = FIGURE_MOVING;
+        if (i == mSeli && j == mSelj) {
+            // Putting figure back, cancelling turn
             clicked_fig->addTween(Actor::TweenY(pos.y), 100)
-                       ->addDoneCallback([this](Event*) {state = IDLE;});
+                       ->addDoneCallback([this](Event*) {mState = IDLE;});
             break;
         }
 
-        figures[i][j] = selected_fig;
-        figures[selx][sely] = nullptr;
+        if (clicked_fig && clicked_fig->fcolor() == selected_fig->fcolor()) {
+            mState = FIGURE_SELECTED;
+            break; // Friendly fire off
+        }
 
+        mFigures[i][j] = selected_fig;
+        mFigures[mSeli][mSelj] = nullptr;
+        selected_fig->setPriority(10);
         selected_fig->addTween(TweenQueue::create(
             createTween(Actor::TweenPosition(pos - Vector2{0, 6}), 100),
             createTween(Actor::TweenY(pos.y), 100)))
             ->addDoneCallback([this, clicked_fig, selected_fig, j](Event*) {
+                // Remove destination figure
                 if (clicked_fig) {
                     removeChild(clicked_fig);
                 }
                 selected_fig->setPriority(j + 1);
-                state = IDLE; 
+                mState = IDLE; 
             });
         break;
+
+    case FIGURE_MOVING:
+        break; // User should wait for move to finish
     }
 }

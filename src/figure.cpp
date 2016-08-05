@@ -12,7 +12,14 @@ std::unordered_map<char, int> Figure::charToFigure = {
 };
 
 Figure::Figure(char c) {
-        int col = charToFigure[tolower(c)];
-        int row = isupper(c) ? 1 : 0;
-        setResAnim(gameResources.getResAnim("chess_pieces"), col, row);
+    // A bit inefficient initialization, but very clear
+    int col = charToFigure[tolower(c)];
+    int row = isupper(c) ? 1 : 0;
+    mColor = isupper(c) ? WHITE : BLACK;
+
+    setResAnim(gameResources.getResAnim("chess_pieces"), col, row);
+}
+
+Figure::FColor Figure::fcolor() {
+    return mColor;
 }

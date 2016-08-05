@@ -1,24 +1,27 @@
 #pragma once
+#include "figure.h"
 #include "oxygine-framework.h"
 
 class Board: public oxygine::Sprite {
     static std::string init_board[8];
     static oxygine::AffineTransform cellToBoard;
     static oxygine::AffineTransform boardToCell; 
-    static oxygine::AffineTransform cellToFigure; // Some shifting for figures
+    static oxygine::AffineTransform cellToFigure;
 
-    oxygine::spSprite figures[8][8];
     enum GameState {
         IDLE,
         FIGURE_SELECTED,
         FIGURE_MOVING
     };
-    GameState state;
-    int selx;
-    int sely;
 
+    GameState mState;
+    spFigure mFigures[8][8];
+    int mSeli; // Coordinates of currently selected figure
+    int mSelj;
     
     void handleBoardClick(oxygine::Event* e);
 public:
     Board();
 };
+
+DECLARE_SMART(Board, spBoard)
